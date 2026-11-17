@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МЧИМЫЧ • Диспетчерская панель</title>
+  <style>
+    :root {
+      --primary: #005bff;
+      --primary-hover: #004ecc;
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1a1d20;
+      --muted: #6c757d;
+      --border: #e2e8f0;
+      --green: #22c55e;
+      --orange: #f97316;
+      --red: #ef4444;
+      --blue-light: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding-bottom: 40px;
+    }
+
+    /* Шапка */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+
+    .header-top {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 24px;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-sub {
+      font-size: 13px;
+      background: var(--blue-light);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .api-bar {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      max-width: 560px;
+    }
+
+    .api-bar input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .api-bar input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: #f8fafc;
+    }
+
+    /* Основной контейнер */
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    /* Панель управления и вкладки */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 10px;
+      gap: 4px;
+    }
+
+    .tab {
+      padding: 8px 18px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .tab.active {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .status-bar {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Сетка заказов */
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+
+    .order-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .order-card:hover {
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    }
+
+    .order-card.alert-border {
+      border: 2px solid var(--red);
+      background: #fffafa;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .order-num {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .order-num span {
+      color: #94a3b8;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-new { background: #f1f5f9; color: #475569; }
+    .badge-assigned { background: #e0f2fe; color: #0284c7; }
+    .badge-at-place { background: #fef3c7; color: #d97706; }
+    .badge-no-answer { background: #fee2e2; color: #dc2626; animation: pulse 1.5s infinite; }
+    .badge-completed { background: #dcfce7; color: #15803d; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.65; }
+    }
+
+    .timers-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-green {
+      background: var(--green);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .pill-orange {
+      background: var(--orange);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .address-box {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: #334155;
+      border: 1px solid #f1f5f9;
+    }
+
+    .meta-info {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-info strong {
+      color: var(--text);
+    }
+
+    .assign-row {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .assign-row select {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13.5px;
+      font-weight: 500;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    /* Блок телеметрии синхронизации для завершенных */
+    .sync-telemetry {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .offline-tag {
+      background: #ede9fe;
+      color: #6d28d9;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      width: fit-content;
+    }
+
+    /* Модальное окно создания заказа */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      width: 100%;
+      max-width: 480px;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+    }
+
+    .modal h3 {
+      font-size: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 20px;
+      background: var(--card);
+      border-radius: 14px;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div class="brand">
+        <span class="brand-logo">МЧИМЫЧ</span>
+        <span class="brand-sub">Диспетчерская L2</span>
+      </div>
+      <div class="api-bar">
+        <input type="text" id="apiUrlInput" placeholder="Вставь ссылку Google Apps Script (.../exec)">
+        <button class="btn btn-primary" onclick="saveAndConnect()">Подключить</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab active" id="tabActive" onclick="switchTab('active')">Текущие заказы (<span id="countActive">0</span>)</button>
+        <button class="tab" id="tabCompleted" onclick="switchTab('completed')">Завершенные (<span id="countCompleted">0</span>)</button>
+      </div>
+
+      <div class="status-bar">
+        <span id="syncIndicator">Ожидание подключения...</span>
+        <button class="btn btn-outline" onclick="fetchData()">🔄 Обновить</button>
+        <button class="btn btn-primary" onclick="openModal()">+ Новый заказ</button>
+      </div>
+    </div>
+
+    <div id="ordersContainer" class="orders-grid">
+      <div class="empty-state">Вставь ссылку <b>.../exec</b> в верхнее поле и нажми «Подключить»</div>
+    </div>
+  </div>
+
+  <!-- Модалка добавления тестового заказа -->
+  <div class="modal-backdrop" id="orderModal">
+    <div class="modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Новый заказ</h3>
+        <button class="btn btn-outline" style="padding:5px 10px; font-size:12px;" onclick="fillRandomOrder()">🎲 Заполнить случайно</button>
+      </div>
+
+      <div class="form-group">
+        <label>Номер чека (формат Мчимыч)</label>
+        <input type="text" id="inpPubNum" placeholder="4614 2890 / 9210">
+      </div>
+
+      <div class="form-group">
+        <label>Адрес доставки</label>
+        <textarea id="inpAddress" rows="2" placeholder="Россия, Москва, Рязанский проспект..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Телефон гостя</label>
+        <input type="text" id="inpPhone" placeholder="+7 (916) 555-09-09">
+      </div>
+
+      <div class="form-group">
+        <label>Состав заказа</label>
+        <input type="text" id="inpItems" placeholder="Филадельфия x1, Рамен x1">
+      </div>
+
+      <div class="form-group">
+        <label>Комментарий</label>
+        <input type="text" id="inpComment" placeholder="Домофон 45, 5 этаж">
+      </div>
+
+      <div class="form-group">
+        <label>Сразу назначить курьера (необязательно)</label>
+        <select id="inpCourier"></select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+        <button class="btn btn-primary" id="btnCreateSubmit" onclick="createOrder()">Создать заказ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Сюда можно сразу вписать свою ссылку /exec по умолчанию:
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbwljhrH_nez7R5RDqPdw3KhcFJd1yku4GrchIxULf3SJ5a7pDdmCHBw9e8bmRd_1b0m/exec";
+
+    let apiUrl = localStorage.getItem("mchimych_api_url") || DEFAULT_API_URL;
+    let currentTab = "active";
+    let couriersList = [];
+    let ordersList = [];
+
+    const apiInput = document.getElementById("apiUrlInput");
+    if (apiUrl) {
+      apiInput.value = apiUrl;
+      fetchData();
+    }
+
+    // Автообновление каждые 8 секунд
+    setInterval(() => {
+      if (apiUrl) fetchData(true);
+    }, 8000);
+
+    function saveAndConnect() {
+      const val = apiInput.value.trim();
+      if (!val) return alert("Вставь ссылку веб-приложения Apps Script (/exec)");
+      apiUrl = val;
+      localStorage.setItem("mchimych_api_url", apiUrl);
+      fetchData();
+    }
+
+    async function fetchData(silent = false) {
+      if (!apiUrl) return;
+      const indicator = document.getElementById("syncIndicator");
+      if (!silent) indicator.textContent = "Загрузка данных...";
+
+      try {
+        const res = await fetch(`${apiUrl}?action=get_all&t=${Date.now()}`);
+        const data = await res.json();
+
+        if (!data.ok) throw new Error(data.error || "Ошибка API");
+
+        couriersList = data.couriers || [];
+        ordersList = (data.orders || []).reverse(); // Новые сверху
+
+        populateCourierModalSelect();
+        renderOrders();
+
+        const nowStr = new Date().toLocaleTimeString("ru-RU");
+        indicator.textContent = `Синхронизировано в ${nowStr}`;
+      } catch (err) {
+        indicator.textContent = "Ошибка соединения с API";
+        console.error(err);
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById("tabActive").classList.toggle("active", tab === "active");
+      document.getElementById("tabCompleted").classList.toggle("active", tab === "completed");
+      renderOrders();
+    }
+
+    function getStatusBadge(status) {
+      switch (status) {
+        case "NEW": return `<span class="badge badge-new">Новый</span>`;
+        case "ASSIGNED": return `<span class="badge badge-assigned">Назначен</span>`;
+        case "AT_PLACE": return `<span class="badge badge-at-place">📍 На месте</span>`;
+        case "GUEST_NO_ANSWER": return `<span class="badge badge-no-answer">⚠️ Гость не отвечает</span>`;
+        case "COMPLETED": return `<span class="badge badge-completed">✓ Завершен</span>`;
+        default: return `<span class="badge badge-new">${status}</span>`;
+      }
+    }
+
+    function formatRemaining(deadlineIso) {
+      if (!deadlineIso) return "01:00:00";
+      const diffMs = new Date(deadlineIso).getTime() - Date.now();
+      if (diffMs <= 0) return "Просрочен";
+      const totalSec = Math.floor(diffMs / 1000);
+      const h = String(Math.floor(totalSec / 3600)).padStart(2, "0");
+      const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
+      const s = String(totalSec % 60).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    function formatTimeOnly(isoStr) {
+      if (!isoStr) return "—";
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return isoStr;
+      return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+
+    function renderOrders() {
+      const activeOrders = ordersList.filter(o => o.status !== "COMPLETED");
+      const completedOrders = ordersList.filter(o => o.status === "COMPLETED");
+
+      document.getElementById("countActive").textContent = activeOrders.length;
+      document.getElementById("countCompleted").textContent = completedOrders.length;
+
+      const list = currentTab === "active" ? activeOrders : completedOrders;
+      const container = document.getElementById("ordersContainer");
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="empty-state">В этой вкладке пока нет заказов</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(order => {
+        const parts = String(order.public_number || order.id).split("/");
+        const numFormatted = parts.length > 1
+          ? `${parts[0]}<span>/ ${parts[1]}</span>`
+          : order.public_number;
+
+        const isAlert = order.status === "GUEST_NO_ANSWER";
+
+        // Селект курьера для активных заказов
+        const courierOptions = [
+          `<option value="">— Не назначен —</option>`,
+          ...couriersList.map(c => `<option value="${c.id}" ${String(c.id) === String(order.courier_id) ? "selected" : ""}>${c.name}</option>`)
+        ].join("");
+
+        const bottomSection = currentTab === "active"
+          ? `
+            <div class="assign-row">
+              <span style="font-size:12.5px; font-weight:600; color:var(--muted);">Курьер:</span>
+              <select onchange="assignCourier('${order.id}', this)">
+                ${courierOptions}
+              </select>
+            </div>
+          `
+          : `
+            <div class="sync-telemetry">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Курьер: <strong>${order.courier_name || "—"}</strong></span>
+                ${order.was_offline_sync ? `<span class="offline-tag">⚡ Synced from Offline Queue</span>` : ""}
+              </div>
+              <div>На месте (клиент): <strong>${formatTimeOnly(order.arrived_at_client)}</strong></div>
+              <div>Вручен (клиент): <strong>${formatTimeOnly(order.completed_at_client)}</strong></div>
+              <div>Принят сервером: <strong>${formatTimeOnly(order.synced_at_server)}</strong></div>
+            </div>
+          `;
+
+        return `
+          <div class="order-card ${isAlert ? 'alert-border' : ''}">
+            <div class="card-header">
+              <div class="order-num">${numFormatted}</div>
+              ${getStatusBadge(order.status)}
+            </div>
+
+            <div class="timers-row">
+              <span class="pill-green">🕒 Доставить за ${formatRemaining(order.deadline_iso)}</span>
+              <span class="pill-orange">🔥 ${formatTimeOnly(order.deadline_iso).slice(0, 5)}</span>
+            </div>
+
+            <div class="address-box">
+              ${order.address}
+            </div>
+
+            <div class="meta-info">
+              <div><strong>Состав:</strong> ${order.items || "—"}</div>
+              <div><strong>Комментарий:</strong> ${order.comment || "—"} • <strong>Гость:</strong> ${order.guest_phone || "—"}</div>
+            </div>
+
+            ${bottomSection}
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function assignCourier(orderId, selectEl) {
+      const courierId = selectEl.value;
+      const courierObj = couriersList.find(c => String(c.id) === String(courierId));
+      const courierName = courierObj ? courierObj.name : "";
+
+      selectEl.disabled = true;
+      try {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "assign_courier",
+            order_id: orderId,
+            courier_id: courierId,
+            courier_name: courierName
+          })
+        });
+        await fetchData(true);
+      } catch (e) {
+        alert("Ошибка назначения курьера");
+      } finally {
+        selectEl.disabled = false;
+      }
+    }
+
+    // Модальное окно
+    function openModal() {
+      fillRandomOrder();
+      document.getElementById("orderModal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("orderModal").classList.remove("open");
+    }
+
+    function populateCourierModalSelect() {
+      const sel = document.getElementById("inpCourier");
+      if (!sel) return;
+      sel.innerHTML = `<option value="">— Оставить без курьера —</option>` +
+        couriersList.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+    }
+
+    function fillRandomOrder() {
+      const addresses = [
+        "Россия, Москва, Рязанский проспект, 58/1, подъезд 2, домофон 44, этаж 7, кв. 44",
+        "Россия, Москва, улица Федора Полетаева, 15к1, подъезд 1, домофон 12, этаж 3, кв. 12",
+        "Россия, Москва, Волгоградский проспект, 119, подъезд 3, домофон 89К, этаж 9, кв. 89",
+        "Россия, Москва, Самаркандский бульвар, 13к2, подъезд 4, домофон 105, этаж 5, кв. 105",
+        "Россия, Москва, Ташкентская улица, 9, подъезд 1, домофон 18, этаж 4, кв. 18"
+      ];
+      const menus = [
+        "Сет Тануки x1, Рамен с курицей x1, Имбирь, Васаби",
+        "Филадельфия Нидзя x2, Лакса с креветками x1",
+        "Тайский цыпленок с рисом x1, Калифорния x1, Мисо суп x2",
+        "Дракон ролл x1, Запеченный краб x1, Лимонад Манго-Маракуйя"
+      ];
+
+      const p1 = Math.floor(1000 + Math.random() * 8999);
+      const p2 = Math.floor(1000 + Math.random() * 8999);
+      document.getElementById("inpPubNum").value = `4614 ${p1} / ${p2}`;
+      document.getElementById("inpAddress").value = addresses[Math.floor(Math.random() * addresses.length)];
+      document.getElementById("inpPhone").value = `+7 (916) ${Math.floor(100 + Math.random()*899)}-${Math.floor(10 + Math.random()*89)}-${Math.floor(10 + Math.random()*89)}`;
+      document.getElementById("inpItems").value = menus[Math.floor(Math.random() * menus.length)];
+      document.getElementById("inpComment").value = "Позвонить по домофону, лифт работает";
+    }
+
+    async function createOrder() {
+      if (!apiUrl) return alert("Сначала подключи ссылку API!");
+      const btn = document.getElementById("btnCreateSubmit");
+      btn.disabled = true;
+      btn.textContent = "Создание...";
+
+      const courierId = document.getElementById("inpCourier").value;
+      const courierObj = couriersList.find(c => String(c.id) === String(courierId));
+
+      try {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "create_order",
+            public_number: document.getElementById("inpPubNum").value,
+            address: document.getElementById("inpAddress").value,
+            guest_phone: document.getElementById("inpPhone").value,
+            items: document.getElementById("inpItems").value,
+            comment: document.getElementById("inpComment").value,
+            courier_id: courierId,
+            courier_name: courierObj ? courierObj.name : "",
+            delivery_minutes: 62
+          })
+        });
+        closeModal();
+        await fetchData();
+      } catch (e) {
+        alert("Ошибка при создании заказа");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Создать заказ";
+      }
+    }
+  </script>
+</body>
+</html>
